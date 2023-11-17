@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Gráfico de Valor e Quantidade Contratada</title>
+    <style>
+        body {
+            background: rgb(2, 0, 36);
+            background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 29%, rgba(0, 255, 19, 1) 100%);
+        }
+
+        p {
+        color: white;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+        height: 100vh;
+    }
+
+    .info-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .chart-container {
+        display: none;
+        /* Oculta os gráficos por padrão */
+        justify-content: space-between;
+        width: 100%;
+        max-width: 800px;
+        flex-wrap: wrap;
+    }
+
+    .chart {
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 20px;
+    }
+
+    .buttons {
+        margin: 10%;
+        text-align: center;
+    }
+
+    .btn-hover {
+        width: 150px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #fff;
+        cursor: pointer;
+        margin: 20px;
+        height: 55px;
+        text-align: center;
+        border: none;
+        background-size: 300% 100%;
+        border-radius: 50px;
+        moz-transition: all .4s ease-in-out;
+        -o-transition: all .4s ease-in-out;
+        -webkit-transition: all .4s ease-in-out;
+        transition: all .4s ease-in-out;
+    }
+
+    .btn-hover:hover {
+        background-position: 100% 0;
+        moz-transition: all .4s ease-in-out;
+        -o-transition: all .4s ease-in-out;
+        -webkit-transition: all .4s ease-in-out;
+        transition: all .4s ease-in-out;
+    }
+
+    .btn-hover:focus {
+        outline: none;
+    }
+
+    .btn-hover.color-1 {
+        background-image: linear-gradient(to right, #25aae1, #40e495, #30dd8a, #2bb673);
+        box-shadow: 0 4px 15px 0 rgba(49, 196, 190, .75);
+    }
+
+    #popup {
+        display: block;
+        text-align: center;
+        padding: 20px;
+        background-color: rgba(240, 240, 240, 0.4);
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        /* Adiciona bordas arredondadas */
+        margin-bottom: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    #toggleButton {
+        margin-bottom: 20px;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="container"> 
+        <div id="popup">
+            <h4>Clique para mostrar o nosso gráfico de 2020 até 2023</h4>
+        </div>  
+        <button id="toggleButton" class="btn-hover color-1" onclick="toggleChart()">Mostrar Gráfico</button>
+        <div class="info-container">
+            <div id="valorInfo">
+                <p>Total Valor Contratado: R$</p>
+            </div>
+            <div id="quantidadeInfo">
+                <p>Total Quantidade Contratada: </p>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart">
+                <canvas id="valorChart"></canvas>
+            </div>
+            <div class="chart">
+                <canvas id="quantidadeChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var dadosValor = [
+            { data: '01/01/2020 a 01/01/2021', valor: 103309443 },
+            { data: '01/01/2021 a 01/01/2022', valor: 69026626 },
+            { data: '01/01/2022 a 01/01/2023', valor: 68154891 }
+        ];
+
+        var dadosQuantidade = [
+            { data: '01/01/2020 a 01/01/2021', quantidade: 12433 },
+            { data: '01/01/2021 a 01/01/2022', quantidade: 6424 },
+            { data: '01/01/2022 a 01/01/2023', quantidade: 4876 }
+        ];
+
+        var valorLabels = [];
+        var valorData = [];
+        var quantidadeLabels = [];
+        var quantidadeData = [];
+
+        dadosValor.forEach(function (item) {
+            valorLabels.push(item.data);
+            valorData.push(item.valor);
+        });
+
+        dadosQuantidade.forEach(function (item) {
+            quantidadeLabels.push(item.data);
+            quantidadeData.push(item.quantidade);
+        });
+
+        var valorChart = document.getElementById('valorChart').getContext('2d');
+        var valorChartInstance;
+
+        var quantidadeChart = document.getElementById('quantidadeChart').getContext('2d');
+        var quantidadeChartInstance;
+
+        function createCharts() {
+            valorChartInstance = new Chart(valorChart, {
+                type: 'bar',
+                data: {
+                    labels: valorLabels,
+                    datasets: [{
+                        label: 'Valor Contratado',
+                        data: valorData,
+                        backgroundColor: 'white',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value, index, values) {
+                                    return 'R$ ' + value.toLocaleString('pt-BR');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            quantidadeChartInstance = new Chart(quantidadeChart, {
+                type: 'bar',
+                data: {
+                    labels: quantidadeLabels,
+                    datasets: [{
+                        label: 'Quantidade Contratada',
+                        data: quantidadeData,
+                        backgroundColor: 'white',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1000
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateInfo(valorIndex, quantidadeIndex) {
+            document.getElementById('valorInfo').innerHTML = '<p>Total Valor Contratado: R$ ' + dadosValor[valorIndex].valor.toLocaleString('pt-BR') + '</p>';
+            document.getElementById('quantidadeInfo').innerHTML = '<p>Total Quantidade Contratada: ' + dadosQuantidade[quantidadeIndex].quantidade + '</p>';
+        }
+
+        function toggleChart() {
+            var chartContainer = document.querySelector('.chart-container');
+            var toggleButton = document.getElementById('toggleButton');
+
+            if (chartContainer.style.display === 'none') {
+                chartContainer.style.display = 'flex';
+                toggleButton.textContent = 'Ocultar Gráfico';
+                createCharts();
+            } else {
+                chartContainer.style.display = 'none';
+                toggleButton.textContent = 'Mostrar Gráfico';
+            }
+        }
+
+        valorChart.canvas.parentNode.style.height = '300px';
+        quantidadeChart.canvas.parentNode.style.height = '300px';
+
+        valorChart.canvas.parentNode.addEventListener('click', function (evt) {
+            var activePoints = valorChartInstance.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+
+            if (activePoints.length > 0) {
+                var valorIndex = activePoints[0].index;
+                var quantidadeIndex = activePoints[0].index;
+                updateInfo(valorIndex, quantidadeIndex);
+            }
+        });
+
+        quantidadeChart.canvas.parentNode.addEventListener('click', function (evt) {
+            var activePoints = quantidadeChartInstance.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+
+            if (activePoints.length > 0) {
+                var valorIndex = activePoints[0].index;
+                var quantidadeIndex = activePoints[0].index;
+                updateInfo(valorIndex, quantidadeIndex);
+            }
+        });
+
+        document.getElementById('popup').addEventListener('click', function () {
+            toggleChart();
+            this.style.display = 'none';
+        });
+    </script>
+</body>
+
+</html>
